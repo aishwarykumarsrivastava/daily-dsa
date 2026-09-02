@@ -23,7 +23,7 @@ Constraints:
  
 Follow up: Could you optimize your algorithm to use only O(rowIndex) extra space?
 
-# Code 
+# Code 1
 
 class Solution {
     public List<Integer> getRow(int rowIndex) {
@@ -41,5 +41,24 @@ class Solution {
             list.add(current);
         }
         return list.get(rowIndex);
+    }
+}
+
+# Code 2
+
+class Solution {
+    public List<Integer> getRow(int rowIndex) {
+        List<Integer> previous = List.of(1);
+        for(int i = 1; i <= rowIndex; i++)
+        {
+            List<Integer> current = new ArrayList<>();
+            current.add(1);
+            for(int j = 0; j < previous.size() - 1; j++){
+                current.add(previous.get(j) + previous.get(j+1));
+            }
+            current.add(1);
+            previous = current;
+        }
+        return previous;
     }
 }
