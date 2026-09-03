@@ -1,0 +1,184 @@
+# Problem Statement
+
+You are given an array nums1 of n distinct integers.
+
+You want to construct another array nums2 of length n such that the elements in nums2 are either all odd or all even.
+
+For each index i, you must choose exactly one of the following (in any order):
+
+nums2[i] = nums1[i]​​​​​​​
+nums2[i] = nums1[i] - nums1[j], for an index j != i, such that nums1[i] - nums1[j] >= 1
+Return true if it is possible to construct such an array, otherwise return false.
+
+Example 1:
+
+Input: nums1 = [1,4,7]
+
+Output: true
+
+Explanation:​​​​​​​​​​​​​​
+
+Set nums2[0] = nums1[0] = 1.
+Set nums2[1] = nums1[1] - nums1[0] = 4 - 1 = 3.
+Set nums2[2] = nums1[2] = 7.
+nums2 = [1, 3, 7], and all elements are odd. Thus, the answer is true.
+Example 2:
+
+Input: nums1 = [2,3]
+
+Output: false
+
+Explanation:
+
+It is not possible to construct nums2 such that all elements have the same parity. Thus, the answer is false.
+
+Example 3:
+
+Input: nums1 = [4,6]
+
+Output: true
+
+Explanation:
+
+Set nums2[0] = nums1[0] = 4.
+Set nums2[1] = nums1[1] = 6.
+nums2 = [4, 6], and all elements are even. Thus, the answer is true.
+
+Constraints:
+
+1 <= n == nums1.length <= 105
+1 <= nums1[i] <= 109
+nums1 consists of distinct integers.
+
+# Approach
+
+The key is to ignore the actual values at first and think only about parity (odd/even).
+
+Step 1: Understand what choices you have
+
+For each nums1[i], you can choose:
+nums1[i]
+nums1[i] - nums1[j] where the result must be positive.
+
+Now consider parity:
+nums1[i]	nums1[j]	Difference
+odd	      odd	      even
+odd	      even	    odd
+even	    odd	      odd
+even	    even	    even
+
+So:
+
+Subtracting two numbers with the same parity gives even. Subtracting numbers with different parity gives odd.
+That's the central observation.
+
+Step 2: Think about making everything even
+
+Suppose you want nums2 to contain only even numbers.
+
+For an element that's already even, you can simply choose:
+nums2[i] = nums1[i]
+So even elements are easy.
+
+But what about an odd element?
+
+To turn an odd number into an even positive difference, you need to subtract another odd number.
+
+For example:
+7 - 1 = 6 → even.
+
+Therefore:
+Every odd element needs another odd element that is smaller than it.
+Because the array contains distinct numbers, the smallest odd number cannot subtract another smaller odd number.
+So if you have odd numbers, making everything even is possible only if...? Think carefully about the smallest odd element.
+
+Step 3: Think about making everything odd
+Now suppose you want nums2 to contain only odd numbers.
+An odd element can simply remain as it is.
+For an even element, you need:
+even - odd = odd
+So every even element needs a smaller odd number.
+Therefore, if there is at least one odd number, the question becomes:
+Is there an odd number that is smaller than every even number?
+If yes, every even element can subtract that odd number and become odd.
+Example:
+[1, 4, 7]
+The smallest odd number is 1.
+1 → keep 1
+4 - 1 = 3
+7 → keep 7
+Everything becomes odd.
+
+Step 4: There's an important shortcut
+You don't actually need to consider every possible pair.
+
+Find:
+the smallest odd number
+the smallest even number
+
+Then reason about the two possible target parities.
+
+All odd
+You need the smallest odd number to be smaller than every even number.
+
+In other words:
+smallest odd < smallest even
+If that's true, you can make everything odd.
+
+All even
+
+This requires every odd number, including the smallest odd number, to have a smaller odd number available.
+But the smallest odd number has no smaller odd number.
+Therefore, if there is any odd number at all, you cannot make all elements even.
+So all-even is possible only when there are no odd numbers.
+
+Final decision logic
+You essentially have three cases:
+All numbers are even → true
+There are odd numbers and the smallest odd number is smaller than the smallest even number → true
+Otherwise → false
+And there's an edge case:
+What if there are no even numbers?
+For example:
+[1, 3, 7]
+They're already all odd → true.
+So conceptually, you're checking whether the array can already be all-even/all-odd, or whether the parity of the mixed elements can be converted using the smallest odd number.
+
+Complexity: You only need a single pass through the array → O(n) time and O(1) extra space.
+
+# Code
+
+class Solution {
+    public boolean uniformArray(int[] nums1) {
+        int smallestOddNumber = Integer.MAX_VALUE;
+        int smallestEvenNumber = Integer.MAX_VALUE;
+        int noOfOdds = 0;
+        int noOfEvens = 0;
+        boolean result;
+        for(int num : nums1){
+            if (num % 2 == 0){
+                noOfEvens++;
+                if (num < smallestEvenNumber){
+                    smallestEvenNumber = num;
+                }
+            }
+            else{
+                noOfOdds++;
+                if (num < smallestOddNumber){
+                    smallestOddNumber = num;
+                }
+            }
+        }
+        if(noOfOdds == nums1.length || noOfEvens == nums1.length){
+            result = true;
+        }
+        else if(smallestOddNumber < smallestEvenNumber)
+        {
+            result = true;
+        }
+        else{
+            result = false;
+        }
+        return result;
+    }
+}
